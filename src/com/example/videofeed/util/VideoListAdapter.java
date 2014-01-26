@@ -16,7 +16,7 @@ import com.example.videofeed.R;
 
 
 public class VideoListAdapter extends ArrayAdapter<String> {
-	private ImageLoader mImageLoader = new ImageLoader();
+	private ImageLoader mImageLoader = new ImageLoader(getContext());
 
 	public VideoListAdapter(Context context, int resource, ListView listView) {
 		super(context, resource);
