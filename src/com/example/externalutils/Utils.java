@@ -1,4 +1,4 @@
-package com.example.videofeed.util;
+package com.example.externalutils;
 
 import java.io.File;
 

@@ -37,16 +37,19 @@ public class VideoListAdapter extends ArrayAdapter<String> {
 				layout.removeView(videoContainer);
 			}
 		}
-		final TextView loadingTextView = (TextView) convertView.findViewById(R.id.loadingtext);
-		loadingTextView.setVisibility(View.GONE);
+		
 		final ImageView snapshotImageView = (ImageView) convertView.findViewById(R.id.snapshot);
-		snapshotImageView.setImageResource(0);
 		snapshotImageView.setVisibility(View.GONE);
+		
+		final TextView loadingTextView = (TextView) convertView.findViewById(R.id.loadingtext);
+		loadingTextView.setVisibility(View.VISIBLE);
+		loadingTextView.setText("Loading video preview...");
+
 		final String path = getItem(position);
-		mImageLoader.cancel(snapshotImageView);
-		mImageLoader.load(snapshotImageView, path);
-		Uri uri = Uri.parse(path);
+		mImageLoader.load(path, snapshotImageView, loadingTextView);
+		
 		final TextView des = (TextView) convertView.findViewById(R.id.textview);
+		Uri uri = Uri.parse(path);
 		des.setText(uri.getPath());
 		return convertView;
 	}

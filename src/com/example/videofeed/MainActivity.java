@@ -20,8 +20,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.example.videofeed.util.ContentLoader;
-import com.example.videofeed.util.L;
-import com.example.videofeed.util.SystemUiHider;
+import com.example.videofeed.util.Util.L;
 import com.example.videofeed.util.VideoListAdapter;
 
 /**
@@ -49,17 +48,16 @@ public class MainActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				LayoutInflater li = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				final ImageView snapshotImageView = (ImageView) view.findViewById(R.id.snapshot);
+
 				final View videoviewContainer = li.inflate(R.layout.view_video, null);
 				final FrameLayout layout = (FrameLayout)view.findViewById(R.id.container);
-				final FrameLayout videocover = (FrameLayout)videoviewContainer.findViewById(R.id.videocover);
 				layout.addView(videoviewContainer, 0);
 				
-				final VideoView vv = (VideoView) videoviewContainer.findViewById(R.id.videoview);
 				final TextView loadingTextView = (TextView) view.findViewById(R.id.loadingtext);
 				loadingTextView.setVisibility(View.VISIBLE);
-				loadingTextView.setText("loading...");
+				loadingTextView.setText("loading video...");
 				
+				final VideoView vv = (VideoView) videoviewContainer.findViewById(R.id.videoview);
 				vv.setOnErrorListener(new OnErrorListener() {
 					@Override
 					public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -67,6 +65,7 @@ public class MainActivity extends Activity {
 						return true;
 					}
 				});
+				
 				vv.setOnTouchListener(new OnTouchListener() {
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
@@ -84,27 +83,23 @@ public class MainActivity extends Activity {
 						return true;
 					}
 				});
+				
+				final ImageView snapshotImageView = (ImageView) view.findViewById(R.id.snapshot);
+				final FrameLayout videocover = (FrameLayout)videoviewContainer.findViewById(R.id.videocover);
 				vv.setOnPreparedListener(new OnPreparedListener() {
-					   @Override
-	                   public void onPrepared(MediaPlayer mp)
-	                   {
-	                	   mp.seekTo(50);
-	                	   snapshotImageView.setVisibility(View.GONE);
-	                	   loadingTextView.setVisibility(View.GONE);
-	                	   videocover.setVisibility(View.GONE);
-	                	   mp.start();
-	                   }
+					@Override
+					public void onPrepared(MediaPlayer mp) {
+						mp.seekTo(50);
+						mp.start();
+						snapshotImageView.setVisibility(View.GONE);
+						loadingTextView.setVisibility(View.GONE);
+						videocover.setVisibility(View.GONE);
+					}
                 }); 
 				
-				try {
-					final String path = adapter.getItem(position);
-					Uri uri = Uri.parse(path);
-					vv.setVideoURI(uri);
-				}
-				catch(Throwable t) {
-					L.d(t.getMessage());
-					vv.setEnabled(false);
-				}
+				final String path = adapter.getItem(position);
+				Uri uri = Uri.parse(path);
+				vv.setVideoURI(uri);
 			}
 			
 		});

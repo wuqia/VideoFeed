@@ -1,4 +1,4 @@
-package com.example.videofeed.util;
+package com.example.externalutils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -31,12 +31,10 @@ public class DiskLruImageCache {
     private static final int APP_VERSION = 1;
     private static final int VALUE_COUNT = 1;
 
-    public DiskLruImageCache( Context context,String uniqueName, int diskCacheSize,
-        CompressFormat compressFormat, int quality ) {
+    public DiskLruImageCache( Context context,String uniqueName, int diskCacheSize, int quality ) {
         try {
                 final File diskCacheDir = getDiskCacheDir(context, uniqueName );
                 mDiskCache = DiskLruCache.open( diskCacheDir, APP_VERSION, VALUE_COUNT, diskCacheSize );
-                mCompressFormat = compressFormat;
                 mCompressQuality = quality;
             } catch (IOException e) {
                 e.printStackTrace();

@@ -43,8 +43,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class string {
         public static final int app_name=0x7f050000;
-        public static final int dummy_button=0x7f050001;
-        public static final int dummy_content=0x7f050002;
+        public static final int snapshot_image=0x7f050001;
     }
     public static final class style {
         /** 

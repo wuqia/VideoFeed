@@ -4,11 +4,14 @@ import java.util.HashMap;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.os.AsyncTask;
 import android.util.LruCache;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.example.externalutils.DiskLruImageCache;
+import com.example.videofeed.util.Util.L;
 
 public class ImageLoader {
 	final private DiskLruImageCache diskCache;
@@ -16,26 +19,34 @@ public class ImageLoader {
 	final private HashMap<ImageView, ConnectTask> taskTracker = new HashMap<ImageView, ConnectTask>();
 	
 	public ImageLoader(Context context) {
-		diskCache = new DiskLruImageCache(context, "zoroVideoFeed", 20*1024*1024, CompressFormat.JPEG, 70);
+		diskCache = new DiskLruImageCache(context, "zoroVideoFeed", 20*1024*1024, 70);
 	}
 	
-	public void onLoaded(String path, Bitmap bmp, ImageView image) {
+	public void onLoaded(String path, Bitmap bmp, ImageView image, TextView text) {
 		if(bmp != null) {
 			memCache.put(path, bmp);
 			diskCache.put(String.valueOf(path.hashCode()), bmp);
 			image.setImageBitmap(bmp);
 			image.setVisibility(View.VISIBLE);
+			text.setVisibility(View.GONE);
 			synchronized (taskTracker) {
 				taskTracker.remove(image);
 			}
 		}
+		else {
+			text.setVisibility(View.VISIBLE);
+			text.setText("Error loading image preview...");
+		}
 	}
 	
-	public void load(ImageView image, String path) {
+	public void load(String path, ImageView image, TextView text) {
+		// cancel previous task associated with this imageview
+		cancel(image);
 		Bitmap bmp = null;
 		if(memCache.get(path) == null) {
+			// TODO: put diskCache access into a background task
 			if(!diskCache.containsKey(String.valueOf(path.hashCode()))) {
-				ConnectTask task = new ConnectTask(path, this, image);
+				ConnectTask task = new ConnectTask(path, this, image, text);
 				synchronized (taskTracker) {
 					taskTracker.put(image, task);
 					task.execute("");
@@ -53,6 +64,7 @@ public class ImageLoader {
 		}
 		image.setImageBitmap(bmp);
 		image.setVisibility(View.VISIBLE);
+		text.setVisibility(View.GONE);
 	}
 	
 	public void cancel(ImageView image) {
@@ -66,13 +78,15 @@ public class ImageLoader {
 	}
 
 	private class ConnectTask extends AsyncTask<String, Integer, Bitmap> {
-		ImageLoader mCl;
-		String mPath;
-		ImageView mIv;
-		public ConnectTask(String path, ImageLoader il, ImageView iv) {
-			mCl = il;
+		private final ImageLoader mImageLoader;
+		private final String mPath;
+		private final ImageView mImage;
+		private final TextView mText;
+		public ConnectTask(String path, ImageLoader imageLoader, ImageView image, TextView text) {
+			mImageLoader = imageLoader;
 			mPath = path;
-			mIv = iv;
+			mImage = image;
+			mText = text;
 		}
 		
 		@Override
@@ -86,7 +100,7 @@ public class ImageLoader {
 
 		@Override
 		protected void onPostExecute(Bitmap result) {
-			mCl.onLoaded(mPath, result, mIv);
+			mImageLoader.onLoaded(mPath, result, mImage, mText);
 		}
 	}
 }

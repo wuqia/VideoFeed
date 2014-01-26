@@ -11,4 +11,8 @@
         android:gravity="center"
         android:keepScreenOn="true"/>
 
+    <!-- hacky control to avoid screen flicker -->
+    <SurfaceView
+        android:layout_width="0px"
+        android:layout_height="0px" />
 </FrameLayout>
